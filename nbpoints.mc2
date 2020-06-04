@@ -1,0 +1,60 @@
+<%
+// This macro provides the number of points expected in a chart
+// depending on user's choice or default value set un datasource
+  {
+    'name' 'centreon/cloud/NB_POINTS'
+    'desc'
+      <'
+In a grafana dashboard, depending on datasource configuration and the dashboard's user options,
+this macro returns the max number of points expeted per chart.
+Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
+      '>
+     // Signature
+    'sig' [ [ [ [ ] ] [ 'result:LONG' ] ] ]
+    'params' {
+      'result' 'The number of points expected in a chart'
+    }
+
+    'examples' [
+      <'
+@centreon/cloud/NB_POINTS
+      '>
+    ]
+  } INFO
+
+  SAVE 'context' STORE
+
+  // check if user_nb_points is empty or if it is not a number
+  false 'userNbPointsError' STORE
+  <% $user_nb_points TOLONG DROP %>
+  <% true 'userNbPointsError' STORE %>
+  <%  %>
+  TRY
+
+  <% $userNbPointsError %>
+  <%
+
+    // check if ds_nb_points is empty or if it is not a number
+    false 'dsNbPointsError' STORE
+    <% $ds_nb_points TOLONG DROP %>
+    <% true 'dsNbPointsError' STORE %>
+    <%  %>
+    TRY
+
+    <% $dsNbPointsError %>
+    <% 100 %>
+    <% $ds_nb_points %>
+    IFTE
+
+  %>
+  <% $user_nb_points %>
+  IFTE
+  $context RESTORE
+%>
+'macro' STORE
+
+// Unit tests
+$macro EVAL 100 == ASSERT
+95 'ds_nb_points' STORE $macro EVAL 95 == ASSERT
+150 'user_nb_points' STORE $macro EVAL 150 == ASSERT
+$macro
