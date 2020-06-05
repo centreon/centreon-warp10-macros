@@ -27,7 +27,7 @@ if [ ! -f "${macro}" ]; then
 fi
 
 echo "Starting Warp10"
-container_id=$(docker run -d --rm -p 8080 -v "$(pwd):/op/warp10/warpscripts" warp10io/warp10:${warp10_version})
+container_id=$(docker run -d --rm -p 8080 -v "$(pwd)" warp10io/warp10:${warp10_version})
 container_post=$(docker inspect -f '{{ (index (index .NetworkSettings.Ports "8080/tcp") 0).HostPort }}' ${container_id})
 echo "Waiting starting"
 sleep 30
