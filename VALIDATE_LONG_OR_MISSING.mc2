@@ -1,0 +1,44 @@
+<%
+  {
+    'name' 'centreon/cloud/VALIDATE_LONG_OR_DEFAULT'
+    'desc'
+      <'
+Function will validate if the first argument is a long, if this argument doesn't exists or not valid, will return the default value
+      '>
+    'sig' [ [ [ [ 'default:LONG' 'param:LONG' ] [ 'default:LONG' 'param:STRING' ] ] [ 'result:LONG' ] ] ]
+    'params' {
+      'default' 'The default value'
+      'param' 'The long to validate'
+      'result' 'The long'
+    }
+    'examples' [
+      <'
+100 "" @centreon/cloud/VALIDATE_LONG_OR_DEFAULT
+      '>
+    ]
+  } INFO
+
+  SAVE 'context' STORE
+
+  'param' STORE
+  'default' STORE
+
+  true 'valid' STORE
+  <% $param TOLONG %>
+  <% false 'valid' STORE %>
+  <% %>
+  TRY
+
+  <% $valid %>
+  <% $param TOLONG %>
+  <% $default %>
+  IFTE
+
+  $context RESTORE
+%>
+'macro' STORE
+
+100 200 $macro EVAL 200 == ASSERT
+100 "toto" $macro EVAL 100 == ASSERT
+100 "23" $macro EVAL 23 == ASSERT
+$macro
