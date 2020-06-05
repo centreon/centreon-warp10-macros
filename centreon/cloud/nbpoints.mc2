@@ -1,12 +1,12 @@
 <%
 // This macro provides the number of points expected in a chart
-// depending on user's choice or default value set un datasource
+// depending on user's choice or default value set in datasource
   {
     'name' 'centreon/cloud/NB_POINTS'
     'desc'
       <'
-In a grafana dashboard, depending on datasource configuration and the dashboard's user options,
-this macro returns the max number of points expeted per chart.
+In a grafana dashboard, depending on datasource's configuration and the dashboard's user options,
+this macro returns the max number of points expected in a chart.
 Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
       '>
      // Signature
@@ -26,7 +26,7 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 
   // check if user_nb_points is empty or if it is not a number
   false 'userNbPointsError' STORE
-  <% $user_nb_points TOLONG DROP %>
+  <% $user_nb_points DROP %>
   <% true 'userNbPointsError' STORE %>
   <%  %>
   TRY
@@ -36,18 +36,18 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 
     // check if ds_nb_points is empty or if it is not a number
     false 'dsNbPointsError' STORE
-    <% $ds_nb_points TOLONG DROP %>
+    <% $ds_nb_points DROP %>
     <% true 'dsNbPointsError' STORE %>
     <%  %>
     TRY
 
     <% $dsNbPointsError %>
     <% 100 %>
-    <% $ds_nb_points %>
+    <% $ds_nb_points TOLONG %>
     IFTE
 
   %>
-  <% $user_nb_points %>
+  <% $user_nb_points TOLONG %>
   IFTE
   $context RESTORE
 %>
@@ -56,5 +56,7 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 // Unit tests
 $macro EVAL 100 == ASSERT
 95 'ds_nb_points' STORE $macro EVAL 95 == ASSERT
+'90' 'ds_nb_points' STORE $macro EVAL 90 == ASSERT
 150 'user_nb_points' STORE $macro EVAL 150 == ASSERT
+'140' 'user_nb_points' STORE $macro EVAL 140 == ASSERT
 $macro
