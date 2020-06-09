@@ -26,7 +26,7 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 
   // check if user_nb_points is empty or if it is not a number
   false 'userNbPointsError' STORE
-  <% $user_nb_points DROP %>
+  <% $user_nb_points TOLONG DROP %>
   <% true 'userNbPointsError' STORE %>
   <%  %>
   TRY
@@ -36,7 +36,7 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 
     // check if ds_nb_points is empty or if it is not a number
     false 'dsNbPointsError' STORE
-    <% $ds_nb_points DROP %>
+    <% $ds_nb_points TOLONG DROP %>
     <% true 'dsNbPointsError' STORE %>
     <%  %>
     TRY
@@ -57,6 +57,9 @@ Both values are supposed to be in variables $ds_nb_points and $user_nb_points.
 $macro EVAL 100 == ASSERT
 95 'ds_nb_points' STORE $macro EVAL 95 == ASSERT
 '90' 'ds_nb_points' STORE $macro EVAL 90 == ASSERT
+'' 'ds_nb_points' STORE $macro EVAL 100 == ASSERT
 150 'user_nb_points' STORE $macro EVAL 150 == ASSERT
 '140' 'user_nb_points' STORE $macro EVAL 140 == ASSERT
+'' 'user_nb_points' STORE $macro EVAL 100 == ASSERT
+'' 'user_nb_points' STORE '80' 'ds_nb_points' STORE $macro EVAL 80 == ASSERT
 $macro
