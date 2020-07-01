@@ -33,7 +33,7 @@ stage('Unit tests') {
 
         // Unit tests are run during .mc2 file loading.
         // Macro should be available if unit tests succeeded.
-        def macroName = macro.substring(0, macro.lastIndefOf('.'))
+        def macroName = macro.substring(0, macro.lastIndexOf('.'))
         def containerPort = container.port(8080)
         sh "curl -f --data-binary \"[ '${macroName}' CHECKMACRO ]\" http://localhost:${containerPort}/api/v0/exec"
 
