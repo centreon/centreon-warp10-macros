@@ -25,7 +25,7 @@ stage('Unit tests') {
         // Prepare container.
         def baseDir = macro.substring(0, macro.lastIndexOf('/'))
         def container = docker.image('warp10io/warp10').run('-p 8080')
-        sh "docker exec ${container.id} mkdir /opt/warp10/macros/${baseDir}"
+        sh "docker exec ${container.id} mkdir -p /opt/warp10/macros/${baseDir}"
         sh "docker cp centreon-warp10-macros/${macro} ${container.id}:/opt/warp10/macros/${macro}"
 
         // By default, Warp10 refresh macro directory every 5 seconds.
