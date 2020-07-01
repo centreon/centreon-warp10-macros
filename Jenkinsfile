@@ -6,6 +6,7 @@ stage('Checkout') {
       checkout scm
       sh 'git archive HEAD | tar -C ../centreon-warp10-macros -x'
       macros = findFiles glob: "**/*.mc2"
+      macros = macros.collect { it.path }
     }
     stash name: 'sources', includes: 'centreon-warp10-macros/**'
   }
