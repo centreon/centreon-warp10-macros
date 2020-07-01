@@ -1,3 +1,21 @@
+def deployMacros(def macros, def workspace) {
+  def nodeLabel = (workspace == 'prod') ? 'prod' : ''
+  node(nodeLabel) {
+    // Checkout sources.
+    sh 'rm -rf centreon-warp10-macros'
+    unstash 'sources'
+
+    // Retrieve account ID.
+    def awsAccountId = sh script: 'aws sts get-caller-identity --query Account --output text', returnStdout: true
+    awsAccountId = awsAccountId.trim()
+
+    // Deploy macros.
+    for (macro in macros) {
+      sh "echo aws s3 cp centreon-warp10-macros/${macro} s3://centreon-artifacts-${awsAccountId}/warp10_macros/${macro}"
+    }
+  }
+}
+
 def macros
 stage('Checkout') {
   node {
@@ -18,7 +36,7 @@ stage('Unit tests') {
     def macro = x
     parallelSteps[macro] = {
       node {
-        // Get sources.
+        // Checkout sources.
         sh 'rm -rf centreon-warp10-macros'
         unstash('sources')
 
@@ -54,4 +72,31 @@ stage('Unit tests') {
     }
   }
   parallel parallelSteps
+}
+
+// Delivery only occurs on master branch.
+if (env.BRANCH_NAME == 'jenkinsfile') {
+  stage('Staging') {
+    milestone label: 'Staging'
+
+    // Wait for explicit user confirmation.
+    timeout(time: 1, unit: 'DAYS') {
+      input message: 'Deploy this build to staging ?', ok: 'Deploy (qual)'
+    }
+
+    // Deploy to staging.
+    deployMacros(macros, 'qual')
+  }
+
+  stage('Production') {
+    milestone label: 'Production'
+
+    // Wait for explicit user confirmation.
+    timeout(time: 1, unit: 'DAYS') {
+      input message: 'Deploy this build to production ?', ok: 'Deploy (prod)'
+    }
+
+    // Deploy to production.
+    deployMacros(macros, 'prod')
+  }
 }
