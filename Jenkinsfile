@@ -11,7 +11,7 @@ def deployMacros(def macros, def workspace) {
 
     // Deploy macros.
     for (macro in macros) {
-      sh "echo aws s3 cp centreon-warp10-macros/${macro} s3://centreon-artifacts-${awsAccountId}/warp10_macros/${macro}"
+      sh "aws s3 cp centreon-warp10-macros/${macro} s3://centreon-artifacts-${awsAccountId}/warp10_macros/${macro}"
     }
   }
 }
@@ -75,7 +75,7 @@ stage('Unit tests') {
 }
 
 // Delivery only occurs on master branch.
-if (env.BRANCH_NAME == 'jenkinsfile') {
+if (env.BRANCH_NAME == 'master') {
   stage('Staging') {
     milestone label: 'Staging'
 
