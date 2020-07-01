@@ -31,7 +31,7 @@ stage('Unit tests') {
         // Macro should be available if unit tests succeeded.
         def macroName = macro.substring(0, macro.lastIndefOf('.'))
         def containerPort = container.port(8080)
-        sh "curl -f --data-binary "[ '${macroName}' CHECKMACRO ]" http://localhost:${containerPort}/api/v0/exec"
+        sh "curl -f --data-binary \"[ '${macroName}' CHECKMACRO ]\" http://localhost:${containerPort}/api/v0/exec"
 
         // Stop container.
         container.stop()
