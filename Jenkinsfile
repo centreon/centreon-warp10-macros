@@ -1,11 +1,13 @@
 def macros
 stage('Checkout') {
-  dir('centreon-warp10-macros-git') {
-    checkout scm
-    sh 'git archive HEAD | tar -C ../centreon-warp10-macros -x'
-    macros = findFiles glob: "**/*.mc2"
+  node {
+    dir('centreon-warp10-macros-git') {
+      checkout scm
+      sh 'git archive HEAD | tar -C ../centreon-warp10-macros -x'
+      macros = findFiles glob: "**/*.mc2"
+    }
+    stash name: 'sources', includes: 'centreon-warp10-macros/**'
   }
-  stash name: 'sources', includes: 'centreon-warp10-macros/**'
 }
 
 stage('Unit tests') {
