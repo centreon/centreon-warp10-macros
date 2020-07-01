@@ -29,7 +29,7 @@ stage('Unit tests') {
         sh "docker cp centreon-warp10-macros/${macro} ${container.id}:/opt/warp10/macros/${macro}"
 
         // By default, Warp10 refresh macro directory every 5 seconds.
-        sleep 5
+        sleep 30
 
         // Unit tests are run during .mc2 file loading.
         // Macro should be available if unit tests succeeded.
