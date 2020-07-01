@@ -1,6 +1,7 @@
 def macros
 stage('Checkout') {
   node {
+    sh 'rm -rf centreon-warp10-macros && mkdir centreon-warp10-macros'
     dir('centreon-warp10-macros-git') {
       checkout scm
       sh 'git archive HEAD | tar -C ../centreon-warp10-macros -x'
