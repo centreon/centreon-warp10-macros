@@ -1,0 +1,116 @@
+{
+  'name' 'MLFETCH'
+  'desc' 
+  <'
+    This macro returns one or more GTS according to parameters passed to macro.
+    Depending on the options, this macro will execute different processing steps:
+      - fetching relevant data
+      - reduce data according to some labels
+      - compute the rate of the LGTS
+      - bucketize remaining GTS
+      - remove duplicate ticks
+      - remove outliers
+      - interpolate missing values
+      - sort GTS
+  '>
+  'sig' [ 
+      [ 
+          [ 
+              { 
+                  'token' 'token:STRING' 
+                  'class' 'class:STRING:~.*'
+                  'labels' 'labels:MAP:{}'
+                  'end' 'end:STRING:NOW'
+                  'start' 'start:STRING:0'
+                  'uniquelabels' 'uniquelabels:LIST:[]'
+                  'diff' 'diff:BOOLEAN:false'
+                  'bucketizer' 'bucketizer:AGGREGATOR:mean'
+                  'bucketspan' 'bucketspan:LONG:1 h'
+                  'k' 'k:LONG:0'
+                  'interpolate' 'interpolate:BOOLEAN:false'
+              } 
+          ] 
+          [ 'data:LIST<GTS>' ] 
+      ]
+  ] // Signature
+  'params' {
+    // Signature params description
+    'token' 'Read token to use to fetch the data.'
+    'class' 'Selector for the GTS classes. Can either be an exact match or a regular expression (the value should then start with a ~).'
+    'labels' 'Map of labels selectors. The key is the label name, the value a selector which can be an exact match or a regular expression (the value should then start with a ~).'
+    'end' 'Newest timestamp to consider when fetching datapoints. In platform time unit or ISO-8601.'
+    'start' 'Oldest timestamp to consider when fetching datapoints. In platform time unit or ISO-8601.'
+    'uniquelabels' 'List of label names to consider for grouping GTS with equivalence classes. If the list is empty all Geo Time Series™ will end up in the same equivalence class. If the labels parameter NULL, all labels will be considered.'
+    'diff' 'Boolean, if true compute compute the rate for each GTS of the LGTS'
+    'bucketizer' 'Bucketizer function to apply'
+    'bucketspan' 'Width in time units of each bucket. If bucketspan is 0 but bucketcount is set, WarpScript will compute bucketspan so bucketcount buckets cover the complete set of values from firsttick to lasttick. If this value is set to -1, the number of buckets is computed so the first tick is towards the end of the first bucket.'
+    'k' 'Upperbound of the number of outliers to detect'
+    'interpolate' 'Boolean, if true interpolate missing value using a linear regression'
+  }
+} 'info' STORE
+
+<%
+  !$info INFO SAVE 'context' STORE
+
+  <%
+    // Organise parameters
+    // TODO refactoring
+    'param' STORE
+    $param 'token' GET 'token' STORE
+    $param 'class' GET DUP ISNULL <% DROP '~.*' %> IFT 'class' STORE
+    $param 'labels' GET DUP ISNULL <% DROP {} %> IFT 'labels' STORE
+    $param 'end' GET DUP ISNULL <% DROP NOW %> IFT 'end' STORE
+    $param 'start' GET DUP ISNULL <% DROP 0 %> IFT 'start' STORE
+    $param 'uniquelabels' CONTAINSKEY <% $param 'uniquelabels' GET %> <% [] %> IFTE 'uniquelabels' STORE
+    $param 'diff' GET DUP ISNULL <% DROP false %> IFT 'diff' STORE
+    $param 'bucketizer' GET DUP ISNULL <% DROP bucketizer.mean %> IFT 'bucketizer' STORE
+    $param 'bucketspan' GET DUP ISNULL <% DROP 1 h %> IFT 'bucketspan' STORE
+    $param 'k' GET DUP ISNULL <% DROP 0 %> IFT 'k' STORE
+    $param 'interpolate' GET DUP ISNULL <% DROP false %> IFT 'interpolate' STORE
+
+    {
+        'token' $token
+        'class' $class
+        'labels' $labels
+        'end' $end
+        'start' $start
+    } FETCH 
+    [ SWAP $uniquelabels reducer.min ] REDUCE
+
+    $diff
+    <%
+        {
+            'mapper' mapper.rate
+            'pre' 1
+        } MAP
+        # If GTS retrieved after rate calculation is not empty
+        # Remove the first tick found since the rate of the first is 0.
+        <% 
+            CLONE MVTICKS CLONE 
+            SIZE 0 >
+            <% 0 GET REMOVETICK %> 
+            <% DROP %> IFTE 
+        %> F LMAP
+    %> IFT
+
+    [ SWAP $bucketizer 0 $bucketspan 0 ] BUCKETIZE
+    DEDUP
+
+    $k 0 >
+    <%
+        CLONE
+        $k true ESDTEST 'loutliers' STORE
+        <% $loutliers SWAP GET REMOVETICK %> LMAP
+    %> IFT
+
+    $interpolate
+    <%
+        INTERPOLATE
+    %> IFT
+
+    SORT
+
+  %> <% RETHROW %> <% $context RESTORE %> TRY
+%> 'macro' STORE
+
+$macro
