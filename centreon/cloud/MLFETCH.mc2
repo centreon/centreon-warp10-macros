@@ -41,7 +41,7 @@
     'end' 'Newest timestamp to consider when fetching datapoints. In platform time unit or ISO-8601.'
     'start' 'Oldest timestamp to consider when fetching datapoints. In platform time unit or ISO-8601.'
     'uniquelabels' 'List of label names to consider for grouping GTS with equivalence classes. If the list is empty all Geo Time Series™ will end up in the same equivalence class. If the labels parameter NULL, all labels will be considered.'
-    'diff' 'Boolean, if true compute compute the rate for each GTS of the LGTS'
+    'diff' 'Boolean, if true compute the rate for each GTS of the LGTS'
     'bucketizer' 'Bucketizer function to apply'
     'bucketspan' 'Width in time units of each bucket. If bucketspan is 0 but bucketcount is set, WarpScript will compute bucketspan so bucketcount buckets cover the complete set of values from firsttick to lasttick. If this value is set to -1, the number of buckets is computed so the first tick is towards the end of the first bucket.'
     'k' 'Upperbound of the number of outliers to detect'
