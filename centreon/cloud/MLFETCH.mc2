@@ -47,6 +47,10 @@
     'k' 'Upperbound of the number of outliers to detect'
     'interpolate' 'Boolean, if true interpolate missing value using a linear regression'
   }
+  'examples' [
+      '{ \'token\' \'your-token\' } @centreon/cloud/MLFETCH'
+      '{ \'token\' \'your-token\' \'diff\' true } @centreon/cloud/MLFETCH'
+  ]
 } 'info' STORE
 
 <%
@@ -54,19 +58,18 @@
 
   <%
     // Organise parameters
-    // TODO refactoring
     'param' STORE
     $param 'token' GET 'token' STORE
-    $param 'class' GET DUP ISNULL <% DROP '~.*' %> IFT 'class' STORE
-    $param 'labels' GET DUP ISNULL <% DROP {} %> IFT 'labels' STORE
-    $param 'end' GET DUP ISNULL <% DROP NOW %> IFT 'end' STORE
-    $param 'start' GET DUP ISNULL <% DROP 0 %> IFT 'start' STORE
+    $param 'class' CONTAINSKEY <% $param 'class' GET %> <% '~.*' %> IFTE 'class' STORE
+    $param 'labels' CONTAINSKEY <% $param 'labels' GET %> <% {} %> 'labels' STORE
+    $param 'end' CONTAINSKEY <% $param 'end' GET %> <% NOW %> IFTE 'end' STORE
+    $param 'start' CONTAINSKEY <% $param 'start' GET %> <% 0 %> IFTE 'start' STORE
     $param 'uniquelabels' CONTAINSKEY <% $param 'uniquelabels' GET %> <% [] %> IFTE 'uniquelabels' STORE
-    $param 'diff' GET DUP ISNULL <% DROP false %> IFT 'diff' STORE
-    $param 'bucketizer' GET DUP ISNULL <% DROP bucketizer.mean %> IFT 'bucketizer' STORE
-    $param 'bucketspan' GET DUP ISNULL <% DROP 1 h %> IFT 'bucketspan' STORE
-    $param 'k' GET DUP ISNULL <% DROP 0 %> IFT 'k' STORE
-    $param 'interpolate' GET DUP ISNULL <% DROP false %> IFT 'interpolate' STORE
+    $param 'diff' CONTAINSKEY <% $param 'diff' GET %> <% false %> 'diff' STORE
+    $param 'bucketizer' CONTAINSKEY <% $param 'bucketizer' GET %> <% bucketizer.mean %> IFTE 'bucketizer' STORE
+    $param 'bucketspan' CONTAINSKEY <% $param 'bucketspan' GET %> <% 1 h %> IFTE 'bucketspan' STORE
+    $param 'k' CONTAINSKEY <% $param 'k' GET %> <% 0 %> IFTE 'k' STORE
+    $param  'interpolate' CONTAINSKEY <% $param 'interpolate' GET %> <% false %> IFTE 'interpolate' STORE
 
     {
         'token' $token
