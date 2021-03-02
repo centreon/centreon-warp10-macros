@@ -61,11 +61,11 @@
     'param' STORE
     $param 'token' GET 'token' STORE
     $param 'class' CONTAINSKEY <% $param 'class' GET %> <% '~.*' %> IFTE 'class' STORE
-    $param 'labels' CONTAINSKEY <% $param 'labels' GET %> <% {} %> 'labels' STORE
+    $param 'labels' CONTAINSKEY <% $param 'labels' GET %> <% {} %> IFTE 'labels' STORE
     $param 'end' CONTAINSKEY <% $param 'end' GET %> <% NOW %> IFTE 'end' STORE
     $param 'start' CONTAINSKEY <% $param 'start' GET %> <% 0 %> IFTE 'start' STORE
     $param 'uniquelabels' CONTAINSKEY <% $param 'uniquelabels' GET %> <% [] %> IFTE 'uniquelabels' STORE
-    $param 'diff' CONTAINSKEY <% $param 'diff' GET %> <% false %> 'diff' STORE
+    $param 'diff' CONTAINSKEY <% $param 'diff' GET %> <% false %> IFTE 'diff' STORE
     $param 'bucketizer' CONTAINSKEY <% $param 'bucketizer' GET %> <% bucketizer.mean %> IFTE 'bucketizer' STORE
     $param 'bucketspan' CONTAINSKEY <% $param 'bucketspan' GET %> <% 1 h %> IFTE 'bucketspan' STORE
     $param 'k' CONTAINSKEY <% $param 'k' GET %> <% 0 %> IFTE 'k' STORE
@@ -77,7 +77,8 @@
         'labels' $labels
         'end' $end
         'start' $start
-    } FETCH 
+    } 
+    FETCH 
     [ SWAP $uniquelabels reducer.min ] REDUCE
 
     $diff
