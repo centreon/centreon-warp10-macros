@@ -60,17 +60,16 @@
     // Organise parameters
     'param' STORE
     $param 'token' GET 'token' STORE
-    $param 'class' CONTAINSKEY <% $param 'class' GET %> <% '~.*' %> IFTE 'class' STORE
-    $param 'labels' CONTAINSKEY <% $param 'labels' GET %> <% {} %> IFTE 'labels' STORE
-    $param 'end' CONTAINSKEY <% $param 'end' GET %> <% NOW %> IFTE 'end' STORE
-    $param 'start' CONTAINSKEY <% $param 'start' GET %> <% 0 %> IFTE 'start' STORE
-    $param 'uniquelabels' CONTAINSKEY <% $param 'uniquelabels' GET %> <% [] %> IFTE 'uniquelabels' STORE
-    $param 'diff' CONTAINSKEY <% $param 'diff' GET %> <% false %> IFTE 'diff' STORE
-    $param 'bucketizer' CONTAINSKEY <% $param 'bucketizer' GET %> <% bucketizer.mean %> IFTE 'bucketizer' STORE
-    $param 'bucketspan' CONTAINSKEY <% $param 'bucketspan' GET %> <% 1 h %> IFTE 'bucketspan' STORE
-    $param 'k' CONTAINSKEY <% $param 'k' GET %> <% 0 %> IFTE 'k' STORE
-    $param  'interpolate' CONTAINSKEY <% $param 'interpolate' GET %> <% false %> IFTE 'interpolate' STORE
-
+    $param 'class' CONTAINSKEY SWAP DROP <% $param 'class' GET %> <% '~.*' %> IFTE 'class' STORE
+    $param 'labels' CONTAINSKEY SWAP DROP <% $param 'labels' GET %> <% {} %> IFTE 'labels' STORE
+    $param 'end' CONTAINSKEY SWAP DROP <% $param 'end' GET %> <% NOW %> IFTE 'end' STORE
+    $param 'start' CONTAINSKEY SWAP DROP <% $param 'start' GET %> <% 0 %> IFTE 'start' STORE
+    $param 'uniquelabels' CONTAINSKEY SWAP DROP <% $param 'uniquelabels' GET %> <% [] %> IFTE 'uniquelabels' STORE
+    $param 'diff' CONTAINSKEY SWAP DROP <% $param 'diff' GET %> <% false %> IFTE 'diff' STORE
+    $param 'bucketizer' CONTAINSKEY SWAP DROP <% $param 'bucketizer' GET %> <% bucketizer.mean %> IFTE 'bucketizer' STORE
+    $param 'bucketspan' CONTAINSKEY SWAP DROP <% $param 'bucketspan' GET %> <% 1 h %> IFTE 'bucketspan' STORE
+    $param 'k' CONTAINSKEY SWAP DROP <% $param 'k' GET %> <% 0 %> IFTE 'k' STORE
+    $param  'interpolate' CONTAINSKEY SWAP DROP <% $param 'interpolate' GET %> <% false %> IFTE 'interpolate' STORE
     {
         'token' $token
         'class' $class
