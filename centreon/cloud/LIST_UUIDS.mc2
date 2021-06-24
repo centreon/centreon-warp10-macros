@@ -1,0 +1,83 @@
+{
+  'name' 'LIST_UUIDS'
+  'desc' 
+  <'
+Returns a set of all uuids configured in the token organization
+  '>
+  'sig' [ 
+    [ [ 'token:STRING' ] [ 'uuids:LIST<STRING>' ] ] 
+    [ [ 'token:STRING' 'class:STRING' ] [ 'uuids:LIST<STRING>' ] ]
+    [ [ 'token:STRING' 'class:STRING' 'labels:MAP' ] [ 'uuids:LIST<STRING>' ] ]
+  ] // Signature
+  'params' {
+      'token' 'Read token to use for finding Geo Time Series™.'
+      'class' 'Selector for the GTS classes. Can either be an exact match or a regular expression (the value should then start with a ~). Default to "~.*".'
+      'labels' 'Map of labels selectors. The key is the label name, the value a selector which can be an exact match or a regular expression (the value should then start with a ~). Default to {}.'
+      'uuids' 'Set of UUIDs configured in organization'
+  }
+} 'info' STORE
+
+<%
+  !$info INFO
+  SAVE 'context' STORE
+  <%
+    DEPTH 0 > 'A token must be provided at least.' ASSERTMSG
+
+    '~.*' 'class' STORE
+    {} 'labels' STORE
+
+    # If 2 elements on the stack and both elements are string,
+    # then define token and class based on those elements.
+    # Otherwise, only define token.
+    'param1' STORE 
+    DEPTH 0 >
+    <% 
+      DUP TYPEOF 'STRING' == <%
+        'param2' STORE
+        DEPTH 0 >
+        <%
+          DUP TYPEOF 'STRING' == $param1 TYPEOF 'MAP' == AND <%
+            'token' STORE 
+            $param2 'class' STORE 
+            $param1 'labels' STORE
+          %> 
+          <%
+            $param2 'token' STORE
+            $param1 'class' STORE
+          %> IFTE
+        %>
+        <%
+          $param2 'token' STORE
+          $param1 'class' STORE
+        %> IFTE
+      %> 
+      <% 
+        $param1 'token' STORE 
+      %> IFTE
+    %> 
+    <% 
+      $param1 'token' STORE 
+    %> IFTE
+    
+    $token TYPEOF 'STRING' == 'Token must be a STRING.' ASSERTMSG
+    $class TYPEOF 'STRING' == 'Class must be a STRING.' ASSERTMSG
+    $labels TYPEOF 'MAP' == 'Labels must be a MAP.' ASSERTMSG
+
+    [ $token $class {} ] FINDSETS DROP SWAP DROP 'labelset' STORE
+    [] 'uuids' STORE
+    [ 'configId' 'uuid' 'modelId' ] <%
+        'label_name' STORE
+        $uuids $labelset $label_name GET APPEND 'uuids' STORE
+    %> FOREACH
+    $uuids UNIQUE LSORT
+  %>
+  <% // catch any exception
+    RETHROW
+  %>
+  <% // finally, restore the context
+    $context RESTORE
+  %> TRY
+%>
+'macro' STORE
+
+$macro
