@@ -1,0 +1,45 @@
+{
+  'name' 'LIST_SELECTORS'
+  'desc' 
+  <'
+Returns a list of all selectors saved in the datascience organization.
+  '>
+  'sig' [ [ [ 'token:STRING' ] [ 'selectors:LIST<STRING>' ] ] ] // Signature
+  'params' {
+      'token' 'Read token to use for finding Geo Time Series™.'
+      'selectors' 'Set of selectors configured in organization'
+  }
+} 'info' STORE
+
+<%
+  !$info INFO
+  SAVE 'context' STORE
+  <%
+    // Code of the actual macro
+    'token' STORE
+    [] 'res' STORE
+    [ $token "~.*" { '_source' '~.*' 'host_id' '~.*' 'service_id' '~.*' } ] FIND
+    <%
+      'gts' STORE
+      $gts  LABELS [ '_source' 'host_id' 'service_id' ] SUBMAP 'labels' STORE
+      $labels '_source' GET 'centreon_onprem' == <% CONTINUE %> IFT
+      NEWGTS
+      $gts NAME RENAME
+      $labels RELABEL
+      TOSELECTOR
+      1 ->LIST
+      $res APPEND 'res' STORE
+    %> FOREACH
+
+    $res UNIQUE
+  %>
+  <% // catch any exception
+    RETHROW
+  %>
+  <% // finally, restore the context
+    $context RESTORE
+  %> TRY
+%>
+'macro' STORE
+
+$macro
